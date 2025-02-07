@@ -8,7 +8,8 @@ import json
 app = Flask(__name__)
 
 # Load Pretrained ResNet18 Model
-model = models.resnet18(pretrained=True)
+# model = models.resnet18(pretrained=True)
+model = resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
 model.eval()
 
 # Define Image Transformations
