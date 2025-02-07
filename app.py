@@ -3,6 +3,7 @@ import torch
 import torchvision.transforms as transforms
 from PIL import Image
 from torchvision import models
+from torchvision.models import resnet18, ResNet18_Weights
 import json
 
 app = Flask(__name__)
