@@ -1,43 +1,46 @@
-from flask import Flask, request, jsonify, render_template
+import streamlit as st
 import torch
-import torchvision.transforms as transforms
+from torchvision import models, transforms
 from PIL import Image
-from torchvision import models
-from torchvision.models import resnet18, ResNet18_Weights
 import json
 
-app = Flask(__name__)
-
-# Load Pretrained ResNet18 Model
-# model = models.resnet18(pretrained=True)
-model = resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
+# Load ResNet18 model
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
 model.eval()
+model.to(device)
 
-# Define Image Transformations
+# Load ImageNet class labels
+LABELS_PATH = "imagenet_classes.json"
+with open(LABELS_PATH) as f:
+    labels_map = json.load(f)
+
+# Define image transformations
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-# Load ImageNet Class Labels
-LABELS = json.load(open("imagenet_classes.json"))
+# Streamlit UI
+st.set_page_config(page_title="ResNet18 Image Classifier", layout="centered")
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+st.title("🖼️ ResNet18 Image Classifier")
+st.write("Upload an image to classify using a pre-trained ResNet18 model.")
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    file = request.files["image"]
-    image = Image.open(file).convert("RGB")
-    image = transform(image).unsqueeze(0)
+# File uploader
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    st.image(image, caption="Uploaded Image", use_column_width=True)
+    
+    # Preprocess image and make prediction
+    img_tensor = transform(image).unsqueeze(0).to(device)
     with torch.no_grad():
-        outputs = model(image)
-        _, predicted_class = outputs.max(1)
+        outputs = model(img_tensor)
+        _, predicted = outputs.max(1)
 
-    class_label = LABELS[predicted_class.item()]
-    return jsonify({"prediction": class_label})
+    predicted_label = labels_map[str(predicted.item())]
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    st.success(f"### 🎯 Prediction: **{predicted_label}**")
