@@ -33,7 +33,7 @@ uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+    st.image(image, caption="Uploaded Image", use_container_width=True)
     
     # Preprocess image and make prediction
     img_tensor = transform(image).unsqueeze(0).to(device)
@@ -41,6 +41,6 @@ if uploaded_file is not None:
         outputs = model(img_tensor)
         _, predicted = outputs.max(1)
 
-    predicted_label = labels_map[str(predicted.item())]
+    predicted_label = labels_map[predicted.item()]
 
     st.success(f"### 🎯 Prediction: **{predicted_label}**")
