@@ -4,7 +4,6 @@ A simple image classification app built with **PyTorch** and **ResNet18**.
 The user can select an image, and the model predicts the most likely class.  
 
 ---
-
 ##  Features  
 - Upload or select an image from your computer.  
 - Pre-trained **ResNet18** model (fine-tuned on custom dataset).  
@@ -20,6 +19,8 @@ The user can select an image, and the model predicts the most likely class.
 - Python 3.8+  
 
 ---
+## Preview
+![Sample run ](1.png)
 
 ## Test Online
 
